@@ -1,0 +1,53 @@
+SELECT
+   -- For this columns need make update - replace all blank space - all spec in left and right part - Oracle 11 
+    RIND,
+    DENUMIRE
+  
+FROM CIS2.MD_RIND
+WHERE 
+
+  FORM = 49
+  AND CAPITOL = 1049
+  AND CAPITOL_VERS = 2015
+  AND STATUT = '1'
+  AND RIND  LIKE '4%'
+  AND LENGTH(RIND) > 3
+ -- AND ORDINE BETWEEN 1 AND 209
+  
+  
+  
+  ORDER BY 
+  ORDINE;
+  
+  
+  SELECT
+    RIND,
+    DENUMIRE
+FROM CIS2.MD_RIND
+WHERE FORM = 49
+  AND CAPITOL = 1049
+  AND CAPITOL_VERS = 2015
+  AND STATUT = '1'
+ -- AND RIND LIKE '4%'
+  AND LENGTH(RIND) > 3
+  AND (
+        RIND <> TRIM(RIND)
+        OR DENUMIRE <> TRIM(DENUMIRE)
+      )
+ORDER BY ORDINE;
+
+
+UPDATE CIS2.MD_RIND
+SET
+    RIND     = TRIM(RIND),
+    DENUMIRE = TRIM(DENUMIRE)
+WHERE FORM = 49
+  AND CAPITOL = 1049
+  AND CAPITOL_VERS = 2015
+  AND STATUT = '1'
+--  AND RIND LIKE '4%'
+  AND LENGTH(RIND) > 3
+  AND (
+        RIND <> TRIM(RIND)
+        OR DENUMIRE <> TRIM(DENUMIRE)
+      );

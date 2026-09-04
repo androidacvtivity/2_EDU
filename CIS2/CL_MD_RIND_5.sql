@@ -1,0 +1,18 @@
+SELECT 
+ L.*
+ 
+ FROM VW_R1 L;
+ 
+ 
+ 
+ 
+ SELECT 
+ L.ITEM_CODE,
+ L.ITEM_PARENT,
+ L.NAME
+ 
+ FROM CIS2.VW_CLS_CLASS_ITEM L
+ 
+    WHERE 
+    L. CLASS_CODE IN ('SPEC_2EDU')
+       AND L.A01 = '5';
