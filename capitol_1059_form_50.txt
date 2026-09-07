@@ -1,0 +1,62 @@
+// FORM = 50
+// CAPITOL = 1059
+// Rânduri statice
+// 16 coloane active
+// Cap.II: Rând.01 = SUM(Rând.02 - Rând.18), Col.1 - Col.16
+
+function sumCap1059_Rind01() {
+    var rowIds = {
+        "01": "119145",
+        "02": "119138",
+        "03": "119146",
+        "04": "119147",
+        "05": "119143",
+        "06": "119134",
+        "07": "119135",
+        "08": "119140",
+        "09": "119131",
+        "10": "119141",
+        "11": "119136",
+        "12": "119144",
+        "13": "119132",
+        "14": "119139",
+        "15": "119137",
+        "16": "119133",
+        "17": "119142",
+        "18": "119148"
+    };
+
+    for (var col = 1; col <= 16; col++) {
+        var sum = 0;
+
+        for (var row = 2; row <= 18; row++) {
+            var rind = row < 10 ? "0" + row : String(row);
+
+            sum += parseInt(
+                $("#50_1059_" + rowIds[rind] + "_" + rind + "_" + col).val(),
+                10
+            ) || 0;
+        }
+
+        $("#50_1059_" + rowIds["01"] + "_01_" + col)
+            .val(sum !== 0 ? sum : "")
+            .prop("readonly", true);
+    }
+}
+
+function f_Capitol_1059() {
+    sumCap1059_Rind01();
+}
+
+$(document).ready(function () {
+    f_Capitol_1059();
+
+    $("input:not([type='button']):not([readonly]):not([disabled])")
+        .on("change", f_Capitol_1059);
+
+    $(document).on(
+        "change",
+        "input:not([type='button']):not([readonly]):not([disabled])",
+        f_Capitol_1059
+    );
+});

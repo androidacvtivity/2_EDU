@@ -1,0 +1,47 @@
+// FORM = 50
+// CAPITOL = 1062
+// Cap.V
+// Rândul 010 este static.
+// Rândurile cu codul limbii sunt dinamice.
+// 4 coloane active.
+// Cap.V: Rând.010 = SUM(rândurile dinamice Codul limbii), Col.*
+
+function sumCap1062_Rind010() {
+    var targetId = "119165";
+    var targetRind = "010";
+
+    for (var col = 1; col <= 4; col++) {
+        var sum = 0;
+
+        // Selectăm toate rândurile din capitolul 1062 pentru coloana curentă.
+        // Excludem rândul static 010, care reprezintă totalul.
+        $('input[id^="50_1062_"][id$="_' + col + '"]').each(function () {
+            var fieldId = $(this).attr("id");
+
+            if (fieldId === "50_1062_" + targetId + "_" + targetRind + "_" + col) {
+                return;
+            }
+
+            var value = parseInt($(this).val(), 10) || 0;
+            sum += value;
+        });
+
+        $("#50_1062_" + targetId + "_" + targetRind + "_" + col)
+            .val(sum !== 0 ? sum : "")
+            .prop("readonly", true);
+    }
+}
+
+function f_Capitol_1062() {
+    sumCap1062_Rind010();
+}
+
+$(document).ready(function () {
+    f_Capitol_1062();
+
+    $(document).on(
+        "change",
+        'input[id^="50_1062_"]:not([readonly]):not([disabled])',
+        f_Capitol_1062
+    );
+});
