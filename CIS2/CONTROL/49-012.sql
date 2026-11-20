@@ -24,7 +24,7 @@ SELECT DISTINCT
     CIS2.NVAL(
         SUM(
             CASE
-                WHEN D.RIND IN ('10') THEN
+                WHEN D.RIND IN ('40') THEN
                     DECODE(
                         CC.NR_COLUMN,
                         '1',  D.COL1,
@@ -54,7 +54,7 @@ SELECT DISTINCT
     CIS2.NVAL(
         SUM(
             CASE
-                WHEN SUBSTR(D.RIND, 1, 1) = '1'
+                WHEN SUBSTR(D.RIND, 1, 1) = '4'
                     AND LENGTH(D.RIND) > 3
                      AND D.RIND NOT IN (
                          '10',
@@ -128,7 +128,7 @@ WHERE
 
     AND D.FORM IN (49)
     AND D.CAPITOL IN (1049)
-AND MR.ORDINE  BETWEEN 1 AND 209
+AND MR.ORDINE  BETWEEN 3500 AND 3719
 GROUP BY
     CC.NR_COLUMN
 
@@ -137,7 +137,7 @@ HAVING
     CIS2.NVAL(
         SUM(
             CASE
-                WHEN D.RIND IN ('10') THEN
+                WHEN D.RIND IN ('40') THEN
                     DECODE(
                         CC.NR_COLUMN,
                         '1',  D.COL1,
@@ -167,7 +167,7 @@ HAVING
     CIS2.NVAL(
         SUM(
             CASE
-                WHEN SUBSTR(D.RIND, 1, 1) = '1'
+                WHEN SUBSTR(D.RIND, 1, 1) = '4'
                   AND LENGTH(D.RIND) > 3
                      AND D.RIND NOT IN (
                           '10',

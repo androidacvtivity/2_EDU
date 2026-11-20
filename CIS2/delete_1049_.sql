@@ -1,3 +1,5 @@
+-- Oracle 11 g
+
 DECLARE
     v_deleted PLS_INTEGER;
 BEGIN
@@ -10,7 +12,8 @@ BEGIN
           AND statut = '3'
           AND rind LIKE '2%'
           AND LENGTH(rind) > 3
-          AND ROWNUM <= 25;
+          AND ROWNUM <= 25;  
+          -- de pus inca o conditie  nu mai mult de 19 minute de executare 
 
         v_deleted := SQL%ROWCOUNT;
 
