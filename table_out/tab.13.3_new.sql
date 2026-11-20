@@ -1396,6 +1396,647 @@ INNER JOIN  (
   ))
   
   
+ UNION 
+SELECT 
+    ORDINE,
+    ORDINE_INTERN,
+    CUATM_CODUL,
+    CUATM_DENUMIRE,
+    CUATM_FULL_CODE,
+    CODUL,
+    DENUMIRE,
+    FULL_CODE,
+    COL1,
+    COL2,
+    COL3,
+    COL4,
+    COL5,
+    COL6,
+    COL7,
+    COL8,
+    COL9,
+    COL10,
+    COL11,
+    COL12,
+    COL13,
+    COL14,
+    COL15 
+  FROM 
+(
+    SELECT 
+    ORDINE,
+    ROWNUM ORDINE_INTERN,
+    CUATM_CODUL,
+    CUATM_DENUMIRE,
+    CUATM_FULL_CODE,
+    CODUL,
+    CDD_DENUMIRE DENUMIRE,
+    FULL_CODE,
+    COL1,
+    COL2,
+    COL3,
+    COL4,
+    COL5,
+    COL6,
+   COL7,
+   COL8,
+   COL9,
+   COL10,
+   COL11,
+   COL12,
+   COL13,
+   COL14,
+   COL15  
+    
+    FROM
+    (
+SELECT 
+   '7'||'_'||CCU.FULL_CODE AS  ORDINE,
+   CCU.CODUL     CUATM_CODUL,
+   CCU.DENUMIRE  CUATM_DENUMIRE, 
+   CCU.FULL_CODE CUATM_FULL_CODE,
+   '3' CODUL,
+   '..........Colegii' CDD_DENUMIRE,  
+   CDD.FULL_CODE_ORDINE CDD_FULL_CODE_ORDINE, 
+   '00000'   CUIIO,
+   NULL  FULL_CODE,
+   COUNT (DISTINCT D.CUIIO)  COL1,
+   
+   NULL  COL2,NULL  COL3,NULL  COL4,NULL  COL5,NULL  COL6,NULL  COL7,NULL  COL8,NULL  COL9,NULL  COL10,NULL  COL11,NULL  COL12,NULL  COL13,NULL  COL14,NULL  COL15
+
+FROM 
+  CIS2.VW_DATA_ALL D
+INNER JOIN (
+
+------------------------------------------------------------------------------
+SELECT 
+    D.CUIIO,
+    D.CUIIO_VERS,
+    D.RIND  RIND,
+(CASE 
+  WHEN TO_CHAR(SUBSTR(D.RIND, 2)) LIKE '0%' THEN REPLACE(LTRIM(TO_CHAR(SUBSTR(D.RIND, 2)), '0'), '.', '')
+  ELSE REPLACE(TO_CHAR(SUBSTR(D.RIND, 2)), '.', '')
+END) AS RIND_MOD,
+    D.ID_MD,
+    D.RIND_VERS,
+    MR.ORDINE
+ FROM 
+  CIS2.VW_DATA_ALL D  
+  
+                INNER JOIN CIS2.MD_RIND MR ON MR.ID_MD = D.ID_MD 
+  
+WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) AND     
+MR.ID_MD NOT IN (
+              SELECT
+                ID_MD
+
+              FROM CIS2.MD_RIND
+              WHERE
+                FORM IN (49)
+                AND CAPITOL IN (1049)
+                AND CAPITOL_VERS = 2015
+                AND STATUT = '1'
+                AND (
+                  RIND IN ('10','20','30','35','40','50','60','70')
+                  OR ORDINE > 7000
+                )
+            )   
+         
+  
+  ------------------------------------------------------------------------------------  
+  ) DD ON   (DD.ID_MD = D.ID_MD AND D.CUIIO = DD.CUIIO AND D.RIND = DD.RIND AND D.RIND_VERS = DD.RIND_VERS  AND D.CUIIO_VERS = DD.CUIIO_VERS)    
+
+     INNER JOIN CIS2.RENIM R ON (D.CUIIO = R.CUIIO AND D.CUIIO_VERS = R.CUIIO_VERS) 
+     INNER JOIN CIS2.VW_CL_CUATM CU ON (CU.CODUL=D.CUATM)  
+     INNER JOIN CIS2.VW_CL_CUATM CCU ON (CU.FULL_CODE LIKE '%'||CCU.CODUL||';%')
+-------------------------------------------------------------------------------------------
+
+     INNER JOIN  (
+            SELECT  
+        
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+            
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CD ON (CD.CODUL = R.NTII) 
+
+    INNER JOIN (
+     
+     SELECT  
+     
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+           
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CDD ON (CD.FULL_CODE LIKE '%'||CDD.CODUL||';%') 
+     
+     ------------------------------------------------------------
+
+WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) 
+  
+  AND CCU.PRGS IN ('2')
+  AND CCU.CODUL NOT IN ('0000000','1111111','2222222','3333333')
+  ----------------------------------
+  
+  AND CDD.CODUL IN ('3')
+  --------------------------------
+  
+ GROUP BY 
+ 
+  CDD.CODUL,
+  CDD.DENUMIRE, 
+  CDD.FULL_CODE_ORDINE,
+  CCU.CODUL,--
+  CCU.DENUMIRE, 
+  CCU.FULL_CODE
+ -- R.DENUMIRE
+  
+  ORDER BY 
+  CCU.FULL_CODE
+  )
+  )
+ 
+  
+   
+ 
+UNION 
+
+
+    SELECT 
+    ORDINE,
+    ORDINE_INTERN,
+    CUATM_CODUL,
+    CUATM_DENUMIRE,
+    CUATM_FULL_CODE,
+    CODUL,
+    DENUMIRE,
+    FULL_CODE,
+    COL1,
+    COL2,
+    COL3,
+    COL4,
+    COL5,
+    COL6,
+    COL7,
+    COL8,
+    COL9,
+    COL10,
+    COL11,
+    COL12,
+    COL13,
+    COL14,
+    COL15 
+  FROM
+(
+SELECT
+   '8'||'_'||CUATM_FULL_CODE ORDINE,
+   ROWNUM ORDINE_INTERN,
+   CUATM_CODUL,
+   CUATM_DENUMIRE, 
+   CUATM_FULL_CODE,
+   CODUL,
+   DENUMIRE,
+   FULL_CODE,
+   COL1,
+   COL2,
+   COL3,
+   COL4,
+   COL5,
+   COL6,
+   COL7,
+   COL8,
+   COL9,
+   COL10,
+   COL11,
+   COL12,
+   COL13,
+   COL14,
+   COL15 
+   
+
+FROM
+
+
+(
+SELECT 
+   ORDINE,
+   CUATM_CODUL,
+   CUATM_DENUMIRE, 
+   CUATM_FULL_CODE,
+   CUIIO,
+   CODUL,
+   DENUMIRE,
+   FULL_CODE,
+   COL1,
+   COL2,
+   COL3,
+   COL4,
+   COL5,
+   COL6,
+   COL7,
+   COL8,
+   COL9,
+   COL10,
+   COL11,
+   COL12,
+   COL13,
+   COL14,
+   COL15 
+   
+
+FROM 
+(
+SELECT 
+   '1'||'_'||D.CUIIO AS  ORDINE,
+   CCU.CODUL     CUATM_CODUL,
+   CCU.DENUMIRE  CUATM_DENUMIRE, 
+   CCU.FULL_CODE CUATM_FULL_CODE,
+   CDD.CODUL    NR_ROW,
+   CDD.DENUMIRE NR_DENUMIRE, 
+   CDD.FULL_CODE_ORDINE CDD_FULL_CODE_ORDINE, 
+   D.CUIIO||CDD.FULL_CODE_ORDINE   CUIIO,
+   
+   TO_CHAR(D.CUIIO)  CODUL,
+   R.DENUMIRE,
+   NULL  FULL_CODE,
+   NULL  COL1,NULL  COL2,NULL  COL3,NULL  COL4,NULL  COL5,NULL  COL6,NULL  COL7,NULL  COL8,NULL  COL9,NULL  COL10,NULL  COL11,NULL  COL12,NULL  COL13,NULL  COL14,NULL  COL15
+
+FROM 
+  CIS2.VW_DATA_ALL D
+INNER JOIN (
+----------------------------------------------------------------------------------
+SELECT 
+    D.CUIIO,
+    D.CUIIO_VERS,
+    D.RIND  RIND,
+(CASE 
+  WHEN TO_CHAR(SUBSTR(D.RIND, 2)) LIKE '0%' THEN REPLACE(LTRIM(TO_CHAR(SUBSTR(D.RIND, 2)), '0'), '.', '')
+  ELSE REPLACE(TO_CHAR(SUBSTR(D.RIND, 2)), '.', '')
+END) AS RIND_MOD,
+    D.ID_MD,
+    D.RIND_VERS,
+    MR.ORDINE
+ FROM 
+  CIS2.VW_DATA_ALL D  
+  
+                INNER JOIN CIS2.MD_RIND MR ON MR.ID_MD = D.ID_MD 
+  
+WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) AND     
+MR.ID_MD NOT IN (
+              SELECT
+                ID_MD
+
+              FROM CIS2.MD_RIND
+              WHERE
+                FORM IN (49)
+                AND CAPITOL IN (1049)
+                AND CAPITOL_VERS = 2015
+                AND STATUT = '1'
+                AND (
+                  RIND IN ('10','20','30','35','40','50','60','70')
+                  OR ORDINE > 7000
+                )
+            )   
+       
+  
+  --------------------------------------------------------------------------------------------------------------     
+  ) DD ON   (DD.ID_MD = D.ID_MD AND D.CUIIO = DD.CUIIO AND D.RIND = DD.RIND AND D.RIND_VERS = DD.RIND_VERS  AND D.CUIIO_VERS = DD.CUIIO_VERS)    
+     
+     ------------------------------------------------------------------------------------------
+     
+--     INNER JOIN  CIS2.VW_CL_SPEC_2EDU C  ON  (ltrim(TO_NUMBER(C.codul),'0') =  DD.RIND_MOD) 
+--     INNER JOIN  CIS2.VW_CL_SPEC_2EDU   CC ON (C.FULL_CODE LIKE '%'||CC.CODUL||';%')
+--     
+     
+
+ INNER JOIN  (SELECT  
+        
+        RINDOUT CODUL,
+        DENUMIRE DENUMIRE,
+        
+        ORDINE,
+        
+         RIND FULL_CODE
+
+FROM CIS2.MD_RIND_OUT
+
+WHERE
+ ID_MDTABLE = 13915) C  ON  (ltrim(TO_NUMBER(C.codul),'0') =  DD.RIND_MOD) 
+     
+    INNER  JOIN   (SELECT  
+        
+        TRIM(RINDOUT) CODUL,
+        DENUMIRE DENUMIRE,
+        
+        ORDINE,
+        
+         RIND FULL_CODE
+
+FROM CIS2.MD_RIND_OUT
+
+WHERE
+ ID_MDTABLE = 13915)   CC ON  C.FULL_CODE LIKE '%'||CC.CODUL||';%'
+     -----------------------------------------------------------------------------------------
+     
+     
+     INNER JOIN CIS2.RENIM R ON (D.CUIIO = R.CUIIO AND D.CUIIO_VERS = R.CUIIO_VERS) 
+     
+     INNER JOIN CIS2.VW_CL_CUATM CU ON (CU.CODUL=D.CUATM)  
+     INNER JOIN CIS2.VW_CL_CUATM CCU ON (CU.FULL_CODE LIKE '%'||CCU.CODUL||';%')
+-------------------------------------------------------------------------------------------
+
+     INNER JOIN  (
+            SELECT  
+        
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CD ON (CD.CODUL = R.NTII) 
+
+    INNER JOIN (
+     
+     SELECT  
+          
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+         
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CDD ON (CD.FULL_CODE LIKE '%'||CDD.CODUL||';%') 
+     
+     ------------------------------------------------------------
+
+WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) 
+  
+  AND CCU.PRGS IN ('2')
+  AND CCU.CODUL NOT IN ('0000000','1111111','2222222','3333333')
+  
+  
+  AND CDD.CODUL IN ('3')
+ 
+  
+ GROUP BY 
+  D.CUIIO,
+  CDD.CODUL,
+  CDD.DENUMIRE, 
+  CDD.FULL_CODE_ORDINE,
+  CCU.CODUL,--
+  CCU.DENUMIRE, 
+  CCU.FULL_CODE,
+  R.DENUMIRE
+
+
+
+---------------------------------------------------------------------------------------------
+
+UNION 
+
+
+SELECT 
+  '2'||'_'||D.CUIIO AS  ORDINE, 
+   CCU.CODUL     CUATM_CODUL,
+   CCU.DENUMIRE  CUATM_DENUMIRE, 
+   CCU.FULL_CODE CUATM_FULL_CODE,
+     CDD.CODUL    NR_ROW,
+     CDD.DENUMIRE NR_DENUMIRE, 
+     CDD.FULL_CODE_ORDINE CDD_FULL_CODE_ORDINE, 
+  
+   D.CUIIO||CDD.FULL_CODE_ORDINE   CUIIO,
+
+   CC.CODUL,
+   CC.DENUMIRE,
+   CC.FULL_CODE,
+   SUM (CIS2.NVAL(D.COL1)) COL1,
+   SUM (CIS2.NVAL(D.COL2)) COL2,
+   SUM (CIS2.NVAL(D.COL1)-CIS2.NVAL(D.COL2))  COL3,
+   SUM (CIS2.NVAL(D.COL1)-CIS2.NVAL(D.COL3))  COL4,
+   SUM (CIS2.NVAL(D.COL3)) COL5,
+   SUM (CIS2.NVAL(D.COL7)) COL6,
+   SUM (CIS2.NVAL(D.COL8)) COL7,
+   SUM (CIS2.NVAL(D.COL7)-CIS2.NVAL(D.COL8)  ) COL8,
+   SUM (CIS2.NVAL(D.COL7)-CIS2.NVAL(D.COL9)  ) COL9,
+   SUM (CIS2.NVAL(D.COL9)) COL10,
+   SUM (CIS2.NVAL(D.COL10)) COL11,
+   SUM (CIS2.NVAL(D.COL11)) COL12,
+   SUM (CIS2.NVAL(D.COL10)-CIS2.NVAL(D.COL11)) COL13,
+   SUM (CIS2.NVAL(D.COL10)-CIS2.NVAL(D.COL12))  COL14,
+   SUM ( CIS2.NVAL(D.COL12)) COL15
+FROM 
+  CIS2.VW_DATA_ALL D
+INNER JOIN(
+
+------------------------------------------------------------------------------------
+SELECT 
+    D.CUIIO,
+    D.CUIIO_VERS,
+    D.RIND  RIND,
+(CASE 
+  WHEN TO_CHAR(SUBSTR(D.RIND, 2)) LIKE '0%' THEN REPLACE(LTRIM(TO_CHAR(SUBSTR(D.RIND, 2)), '0'), '.', '')
+  ELSE REPLACE(TO_CHAR(SUBSTR(D.RIND, 2)), '.', '')
+END) AS RIND_MOD,
+    D.ID_MD,
+    D.RIND_VERS,
+    MR.ORDINE
+ FROM 
+  CIS2.VW_DATA_ALL D  
+  
+                INNER JOIN CIS2.MD_RIND MR ON MR.ID_MD = D.ID_MD 
+  
+WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) AND     
+MR.ID_MD NOT IN (
+              SELECT
+                ID_MD
+
+              FROM CIS2.MD_RIND
+              WHERE
+                FORM IN (49)
+                AND CAPITOL IN (1049)
+                AND CAPITOL_VERS = 2015
+                AND STATUT = '1'
+                AND (
+                  RIND IN ('10','20','30','35','40','50','60','70')
+                  OR ORDINE > 7000
+                )
+            )   
+        
+  
+  
+  ------------------------------------------------------------- 
+  ) DD ON   (DD.ID_MD = D.ID_MD AND D.CUIIO = DD.CUIIO AND D.RIND = DD.RIND AND D.RIND_VERS = DD.RIND_VERS  AND D.CUIIO_VERS = DD.CUIIO_VERS)    
+ 
+     
+     -----------------------------------------------------------------------------------------------
+--     INNER JOIN  CIS2.VW_CL_SPEC_2EDU C  ON  (ltrim(TO_NUMBER(C.codul),'0') =  DD.RIND_MOD) 
+--     INNER JOIN  CIS2.VW_CL_SPEC_2EDU   CC ON (C.FULL_CODE LIKE '%'||CC.CODUL||';%')
+     
+ INNER JOIN  (SELECT  
+        
+        RINDOUT CODUL,
+        DENUMIRE DENUMIRE,
+        
+        ORDINE,
+        
+         RIND FULL_CODE
+
+FROM CIS2.MD_RIND_OUT
+
+WHERE
+ ID_MDTABLE = 13915) C  ON  (ltrim(TO_NUMBER(C.codul),'0') =  DD.RIND_MOD) 
+     
+    INNER  JOIN   (SELECT  
+        
+        TRIM(RINDOUT) CODUL,
+        DENUMIRE DENUMIRE,
+        
+        ORDINE,
+        
+         RIND FULL_CODE
+
+FROM CIS2.MD_RIND_OUT
+
+WHERE
+ ID_MDTABLE = 13915)   CC ON  C.FULL_CODE LIKE '%'||CC.CODUL||';%'
+     ------------------------------------------------------------------------------------------
+     
+     
+     INNER JOIN CIS2.RENIM R ON (D.CUIIO = R.CUIIO AND D.CUIIO_VERS = R.CUIIO_VERS) 
+     INNER JOIN  CIS2.VW_CL_CUATM CU   ON (CU.CODUL = D.CUATM)
+     INNER JOIN  CIS2.VW_CL_CUATM CCU  ON (CU.FULL_CODE LIKE '%'||CCU.CODUL||';%')
+--------------------------------------------------------------------------------------------
+INNER JOIN  (
+            SELECT  
+        
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+           
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CD ON (CD.CODUL = R.NTII) 
+
+    INNER JOIN (
+     
+     SELECT  
+          
+            RINDOUT  FULL_CODE_ORDINE,
+            DENUMIRE,
+            STATUT CODUL,
+            ORDINE,
+           
+            RIND  FULL_CODE
+            
+            FROM CIS2.MD_RIND_OUT
+
+            WHERE 
+            ID_MDTABLE = 8701
+     
+     ) CDD ON (CD.FULL_CODE LIKE '%'||CDD.CODUL||';%') 
+---------------------------------------------------------------------------------------------
+
+
+     
+ WHERE
+  D.PERIOADA IN (:pPERIOADA) AND 
+  D.FORM_VERS = :pFORM_VERS     AND    
+  (:pID_MDTABLE=:pID_MDTABLE) AND
+  D.CUATM_FULL LIKE '%'||:pCOD_CUATM||';%' AND
+  D.FORM IN (49)                 AND 
+  D.CAPITOL IN (1049) 
+  AND CCU.PRGS IN ('2')
+  AND CCU.CODUL NOT IN ('0000000','1111111','2222222','3333333')
+  AND CDD.CODUL IN ('3')
+  GROUP BY 
+  D.CUIIO,
+  CCU.CODUL,--
+  CCU.DENUMIRE, 
+  CCU.FULL_CODE,
+
+  CDD.CODUL,
+  CDD.DENUMIRE, 
+  CDD.FULL_CODE_ORDINE,
+  CC.CODUL,
+  CC.DENUMIRE,
+  CC.FULL_CODE,
+  CC.ORDINE
+ 
+  )
+  
+  ORDER BY 
+  CUIIO,
+  ORDINE, 
+  FULL_CODE,
+  CDD_FULL_CODE_ORDINE,
+  CUATM_FULL_CODE
+  ))
+  
+  
  ORDER BY 
    ORDINE,
    ORDINE_INTERN,
